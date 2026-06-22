@@ -7,6 +7,7 @@ on:
     paths:
       - "official-themes/**"
       - "community-themes/**"
+      - "theme_dates.json"
       - "tools/generate_index.py"
       - ".github/workflows/update-index.yml"
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - "official-themes/**"
       - "community-themes/**"
+      - "theme_dates.json"
       - "tools/generate_index.py"
       - ".github/workflows/update-index.yml"
   workflow_dispatch:
@@ -40,13 +42,15 @@ jobs:
       - name: Generate index.json
         run: python tools/generate_index.py
 
-      - name: Verify index.json is up to date
+      - name: Verify generated files are up to date
         if: github.event_name == 'pull_request'
-        run: git diff --exit-code index.json
+        run: git diff --exit-code index.json theme_dates.json
 
-      - name: Commit updated index.json
+      - name: Commit updated theme index
         if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update theme index"
-          file_pattern: index.json
+          file_pattern: |
+            index.json
+            theme_dates.json
