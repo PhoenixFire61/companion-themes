@@ -1,0 +1,52 @@
+name: Update Theme Index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "official-themes/**"
+      - "community-themes/**"
+      - "tools/generate_index.py"
+      - ".github/workflows/update-index.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "official-themes/**"
+      - "community-themes/**"
+      - "tools/generate_index.py"
+      - ".github/workflows/update-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Generate index.json
+        run: python tools/generate_index.py
+
+      - name: Verify index.json is up to date
+        if: github.event_name == 'pull_request'
+        run: git diff --exit-code index.json
+
+      - name: Commit updated index.json
+        if: github.event_name != 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update theme index"
+          file_pattern: index.json
