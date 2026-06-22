@@ -39,8 +39,13 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Generate index.json
+      - name: Generate index.json and theme_dates.json
         run: python tools/generate_index.py
+
+      - name: Show generated file changes
+        run: |
+          ls -la
+          git status --short
 
       - name: Verify generated files are up to date
         if: github.event_name == 'pull_request'
@@ -51,6 +56,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Update theme index"
-          file_pattern: |
-            index.json
-            theme_dates.json
+          file_pattern: index.json theme_dates.json theme_dates.json
